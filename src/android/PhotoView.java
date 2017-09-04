@@ -79,7 +79,7 @@ public class PhotoView extends CordovaPlugin {
 				}
 				
 				// Write image to a file in sd card
-				File posterFile = new File(Environment.getExternalStorageDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()+"/image.jpg");
+				File posterFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/image.jpg");
 				try {
 					posterFile.createNewFile();
 					BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(posterFile));

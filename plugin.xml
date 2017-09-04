@@ -38,7 +38,12 @@ xmlns:rim="http://www.blackberry.com/ns/widgets"
                 <param name="android-package" value="org.apache.cordova.photoview.PhotoView"/>
             </feature>
         </config-file>
-
+		
+		<config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+			<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+        </config-file>
+		
         <source-file src="src/android/PhotoView.java" target-dir="src/org/apache/cordova/photoview" />
     </platform>
 	

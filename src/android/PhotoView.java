@@ -53,64 +53,65 @@ public class PhotoView extends CordovaPlugin {
 			
 			if (options != null) {
 
-				//ako je url
-				InputStream instream =null;
-				Bitmap bmImg=null;
-				int responseCode = -1;
-				try{
-		
-					 URL url = new URL(options.getString("PhotoURI"));
-					 HttpURLConnection con = (HttpURLConnection)url.openConnection();
-					 con.setDoInput(true);
-					 con.connect();
-					 responseCode = con.getResponseCode();
-					 if(responseCode == HttpURLConnection.HTTP_OK)
-					 {
-						 //download 
-						 instream = con.getInputStream();
-						 bmImg = BitmapFactory.decodeStream(instream);
-						 instream.close();
-						 
-						 // Write image to a file in sd card
-						File posterFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/image.jpg");
-						try {
-							posterFile.createNewFile();
-							BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(posterFile));
-							Bitmap mutable = Bitmap.createScaledBitmap(bmImg,bmImg.getWidth(),bmImg.getHeight(),true);
-							mutable.compress(Bitmap.CompressFormat.JPEG, 100, out);
-							out.flush();
-							out.close();
+				if (options.getString("path_type") == "URL_path") { //ako je URL
+				
+					InputStream instream =null;
+					Bitmap bmImg=null;
+					int responseCode = -1;
+					try{
+			
+						 URL url = new URL(options.getString("PhotoURI"));
+						 HttpURLConnection con = (HttpURLConnection)url.openConnection();
+						 con.setDoInput(true);
+						 con.connect();
+						 responseCode = con.getResponseCode();
+						 if(responseCode == HttpURLConnection.HTTP_OK)
+						 {
+							 //download 
+							 instream = con.getInputStream();
+							 bmImg = BitmapFactory.decodeStream(instream);
+							 instream.close();
+							 
+							 // Write image to a file in sd card
+							File posterFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Android/data/com.dexter.photoview/files/url_image.jpg");
+							try {
+								posterFile.createNewFile();
+								BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(posterFile));
+								Bitmap mutable = Bitmap.createScaledBitmap(bmImg,bmImg.getWidth(),bmImg.getHeight(),true);
+								mutable.compress(Bitmap.CompressFormat.JPEG, 100, out);
+								out.flush();
+								out.close();
+								
+								Uri myUri = Uri.parse("file://" + posterFile.getPath());
+						
+								Intent intent = new Intent();
+								intent.setAction(Intent.ACTION_VIEW);
+								intent.setDataAndType(myUri, "image/*");
+								cordova.getActivity().startActivity(intent);	
 							
-							Uri myUri = Uri.parse("file://" + posterFile.getPath());
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								//e.printStackTrace();
+							}
+							
+						 }
+			
+					}
+					catch(Exception ex){
+						//Log.e("Exception",ex.toString());
+					}
 					
-							Intent intent = new Intent();
-							intent.setAction(Intent.ACTION_VIEW);
-							intent.setDataAndType(myUri, "image/*");
-							cordova.getActivity().startActivity(intent);	
-						
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-					 }
-		
-				}
-				catch(Exception ex){
-					//Log.e("Exception",ex.toString());
+				} else { //ako je Uri
+
+					Uri myUri = Uri.parse(options.getString("PhotoURI"));
+			
+					Intent intent = new Intent();
+					intent.setAction(Intent.ACTION_VIEW);
+					intent.setDataAndType(myUri, "image/*");
+					cordova.getActivity().startActivity(intent);	
+				
 				}
 				
-				
-				
-				/*
-				//ako je Uri
-				//Uri myUri = Uri.parse(options.getString("PhotoURI"));
-		
-				Intent intent = new Intent();
-				intent.setAction(Intent.ACTION_VIEW);
-				intent.setDataAndType(myUri, "image/*");
-				cordova.getActivity().startActivity(intent);	
-				*/
 			}
 			
 			/*

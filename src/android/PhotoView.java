@@ -32,16 +32,12 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.BufferedHttpEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 public class PhotoView extends CordovaPlugin {
 	
@@ -59,12 +55,8 @@ public class PhotoView extends CordovaPlugin {
 				//Uri myUri = Uri.parse(options.getString("PhotoURI"));
 				
 				URL u = new URL(options.getString("PhotoURI"));
-				HttpGet httpRequest = new HttpGet(u.toURI());
-				HttpClient httpclient = new DefaultHttpClient();
-				HttpResponse response = (HttpResponse) httpclient.execute(httpRequest);
-				HttpEntity entity = response.getEntity();
-				BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
-				InputStream instream = bufHttpEntity.getContent();
+				HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
+				InputStream instream = urlConnection.getInputStream();
 				Bitmap bmImg = BitmapFactory.decodeStream(instream);
 				instream.close();
 		

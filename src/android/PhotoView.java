@@ -28,6 +28,21 @@ import android.content.Intent;
 import android.app.Activity;
 import android.net.Uri;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 public class PhotoView extends CordovaPlugin {
 	
     public static final String TAG = "photoview";
@@ -41,8 +56,29 @@ public class PhotoView extends CordovaPlugin {
 			
 			if (options != null) {
 				
-				Uri myUri = Uri.parse(options.getString("PhotoURI"));
+				//Uri myUri = Uri.parse(options.getString("PhotoURI"));
 				
+				URL u = new URL(options.getString("PhotoURI"));
+				HttpGet httpRequest = new HttpGet(u.toURI());
+				HttpClient httpclient = new DefaultHttpClient();
+				HttpResponse response = (HttpResponse) httpclient.execute(httpRequest);
+				HttpEntity entity = response.getEntity();
+				BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
+				InputStream instream = bufHttpEntity.getContent();
+				Bitmap bmImg = BitmapFactory.decodeStream(instream);
+				instream.close();
+		
+				// Write image to a file in sd card
+				File posterFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Android/data/com.dexter.prosecnabrzinasrbije/files/image.jpg");
+				posterFile.createNewFile();
+				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(posterFile));
+				Bitmap mutable = Bitmap.createScaledBitmap(bmImg,bmImg.getWidth(),bmImg.getHeight(),true);
+				mutable.compress(Bitmap.CompressFormat.JPEG, 100, out);
+				out.flush();
+				out.close();
+				
+				Uri myUri = Uri.parse("file://" + posterFile.getPath());
+		
 				Intent intent = new Intent();
 				intent.setAction(Intent.ACTION_VIEW);
 				intent.setDataAndType(myUri, "image/*");

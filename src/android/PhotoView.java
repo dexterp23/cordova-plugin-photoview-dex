@@ -52,9 +52,8 @@ public class PhotoView extends CordovaPlugin {
 		if (action.equals("GetPhoto")) { 
 			
 			if (options != null) {
-				
-				//Uri myUri = Uri.parse(options.getString("PhotoURI"));
-				
+
+				//ako je url
 				InputStream instream =null;
 				Bitmap bmImg=null;
 				int responseCode = -1;
@@ -71,6 +70,29 @@ public class PhotoView extends CordovaPlugin {
 						 instream = con.getInputStream();
 						 bmImg = BitmapFactory.decodeStream(instream);
 						 instream.close();
+						 
+						 // Write image to a file in sd card
+						File posterFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/image.jpg");
+						try {
+							posterFile.createNewFile();
+							BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(posterFile));
+							Bitmap mutable = Bitmap.createScaledBitmap(bmImg,bmImg.getWidth(),bmImg.getHeight(),true);
+							mutable.compress(Bitmap.CompressFormat.JPEG, 100, out);
+							out.flush();
+							out.close();
+							
+							Uri myUri = Uri.parse("file://" + posterFile.getPath());
+					
+							Intent intent = new Intent();
+							intent.setAction(Intent.ACTION_VIEW);
+							intent.setDataAndType(myUri, "image/*");
+							cordova.getActivity().startActivity(intent);	
+						
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
 					 }
 		
 				}
@@ -78,27 +100,17 @@ public class PhotoView extends CordovaPlugin {
 					//Log.e("Exception",ex.toString());
 				}
 				
-				// Write image to a file in sd card
-				File posterFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/image.jpg");
-				try {
-					posterFile.createNewFile();
-					BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(posterFile));
-					Bitmap mutable = Bitmap.createScaledBitmap(bmImg,bmImg.getWidth(),bmImg.getHeight(),true);
-					mutable.compress(Bitmap.CompressFormat.JPEG, 100, out);
-					out.flush();
-					out.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				
-				Uri myUri = Uri.parse("file://" + posterFile.getPath());
+				
+				/*
+				//ako je Uri
+				//Uri myUri = Uri.parse(options.getString("PhotoURI"));
 		
 				Intent intent = new Intent();
 				intent.setAction(Intent.ACTION_VIEW);
 				intent.setDataAndType(myUri, "image/*");
 				cordova.getActivity().startActivity(intent);	
-				
+				*/
 			}
 			
 			/*

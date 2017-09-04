@@ -31,14 +31,13 @@ import android.net.Uri;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Bundle;
 import android.os.Environment;
 
 public class PhotoView extends CordovaPlugin {
@@ -56,27 +55,42 @@ public class PhotoView extends CordovaPlugin {
 				
 				//Uri myUri = Uri.parse(options.getString("PhotoURI"));
 				
-				URL u;
+				InputStream instream =null;
+				Bitmap bmImg=null;
+				int responseCode = -1;
+				try{
+		
+					 URL url = new URL(options.getString("PhotoURI"));
+					 HttpURLConnection con = (HttpURLConnection)url.openConnection();
+					 con.setDoInput(true);
+					 con.connect();
+					 responseCode = con.getResponseCode();
+					 if(responseCode == HttpURLConnection.HTTP_OK)
+					 {
+						 //download 
+						 instream = con.getInputStream();
+						 bmImg = BitmapFactory.decodeStream(instream);
+						 instream.close();
+					 }
+		
+				}
+				catch(Exception ex){
+					//Log.e("Exception",ex.toString());
+				}
+				
+				// Write image to a file in sd card
+				File posterFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Android/data/com.myapp/files/image.jpg");
 				try {
-					u = new URL(options.getString("PhotoURI"));
-				} catch (MalformedURLException e) {
+					posterFile.createNewFile();
+					BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(posterFile));
+					Bitmap mutable = Bitmap.createScaledBitmap(bmImg,bmImg.getWidth(),bmImg.getHeight(),true);
+					mutable.compress(Bitmap.CompressFormat.JPEG, 100, out);
+					out.flush();
+					out.close();
+				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-		
-				HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
-				InputStream instream = urlConnection.getInputStream();
-				Bitmap bmImg = BitmapFactory.decodeStream(instream);
-				instream.close();
-		
-				// Write image to a file in sd card
-				File posterFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Android/data/com.dexter.prosecnabrzinasrbije/files/image.jpg");
-				posterFile.createNewFile();
-				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(posterFile));
-				Bitmap mutable = Bitmap.createScaledBitmap(bmImg,bmImg.getWidth(),bmImg.getHeight(),true);
-				mutable.compress(Bitmap.CompressFormat.JPEG, 100, out);
-				out.flush();
-				out.close();
 				
 				Uri myUri = Uri.parse("file://" + posterFile.getPath());
 		

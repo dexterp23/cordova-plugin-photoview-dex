@@ -87,17 +87,25 @@ public class PhotoView extends CordovaPlugin {
 								Intent intent = new Intent();
 								intent.setAction(Intent.ACTION_VIEW);
 								intent.setDataAndType(myUri, "image/*");
-								cordova.getActivity().startActivity(intent);	
+								cordova.getActivity().startActivity(intent);
+								callbackContext.success("ok");	
 							
 							} catch (IOException e) {
+								callbackContext.error("error"); 
+								return false;
 								// TODO Auto-generated catch block
 								//e.printStackTrace();
 							}
 							
+						 } else {
+						  	callbackContext.error("error");
+							return false;
 						 }
 			
 					}
 					catch(Exception ex){
+						callbackContext.error("error"); 
+						return false;
 						//Log.e("Exception",ex.toString());
 					}
 					
@@ -108,7 +116,8 @@ public class PhotoView extends CordovaPlugin {
 					Intent intent = new Intent();
 					intent.setAction(Intent.ACTION_VIEW);
 					intent.setDataAndType(myUri, "image/*");
-					cordova.getActivity().startActivity(intent);	
+					cordova.getActivity().startActivity(intent);
+					callbackContext.success("ok");
 				
 				}
 				
@@ -130,7 +139,5 @@ public class PhotoView extends CordovaPlugin {
         return true;
 		
     }
-
-
 
 }

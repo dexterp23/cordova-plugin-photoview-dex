@@ -54,7 +54,14 @@ public class PhotoView extends CordovaPlugin {
 				
 				//Uri myUri = Uri.parse(options.getString("PhotoURI"));
 				
-				URL u = new URL(options.getString("PhotoURI"));
+				URL u;
+				try {
+					u = new URL(options.getString("PhotoURI"));
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		
 				HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
 				InputStream instream = urlConnection.getInputStream();
 				Bitmap bmImg = BitmapFactory.decodeStream(instream);
